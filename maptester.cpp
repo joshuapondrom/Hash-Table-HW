@@ -69,7 +69,6 @@ void test1()
   thelist.remove("Fry");
   thelist.remove("Hermes");
   thelist.remove("Amy");  
-  
   thelist.remove("Nixon");    
       
   thelist.print();
