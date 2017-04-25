@@ -16,12 +16,12 @@ class HashNode
       value = v;
     }
     
-    string getkey() const
+    string getkey()
     {
       return Key;
     }
     
-    T getval() const
+    T& getval()
     {
       return value;
     }
@@ -33,6 +33,7 @@ class MyStringMap: public AbstractStringMap<T>
   private:
     int mapsize;
     HashNode<T>** map;
+    int contents;
 
     int hash(const string &s) const
     {
@@ -48,6 +49,7 @@ class MyStringMap: public AbstractStringMap<T>
     MyStringMap()
     {
       mapsize = 65536;
+      contents = 0;
       map = new HashNode<T>*[mapsize];
       for(int i = 0; i < mapsize; i++)
       {
@@ -57,18 +59,13 @@ class MyStringMap: public AbstractStringMap<T>
 
     int size() const
     {
-      return mapsize;
+      return contents;
     }
 
     bool isEmpty() const
     {
-      for(int i = 0; i < mapsize; i++)
-      {
-        if(map[i] != NULL)
-	{
-	  return false;
-	}
-      }
+      if(contents)
+	return false;
       return true;
     }
     
@@ -82,13 +79,11 @@ class MyStringMap: public AbstractStringMap<T>
       }
       if(map[hashval] == NULL)
       {
-        throw(Oops(""));
+        throw(Oops("Key Not Found!!"));
       }
       else
       {
-        cout << "testing seg fault 1" << endl;
         return map[hashval]->getval();
-        cout << "testing seg fault 2" << endl;
       }
     }
     
@@ -98,6 +93,7 @@ class MyStringMap: public AbstractStringMap<T>
       {
         map[i] = NULL;
       }
+      contents = 0;
     }
 
     void insert(const string& key, const T& val)
@@ -108,15 +104,42 @@ class MyStringMap: public AbstractStringMap<T>
         hashval++;
 	hashval %= mapsize;
       }
-      map[hashval] = new HashNode<T>(key,val);
-      mapsize++;
+      if(map[hashval] != NULL && map[hashval]->getkey() == key)
+      {
+        delete map[hashval];
+	map[hashval] = new HashNode<T>(key,val);
+      }
+      else
+      {
+        map[hashval] = new HashNode<T>(key,val);
+        contents++;
+      }
     }
 
     void remove(const string& k)
     {
+      int hashval = hash(k);
+      while(map[hashval] != NULL && map[hashval]->getkey() != k)
+      {
+        hashval++;
+	hashval %= mapsize;
+      }
+      delete map[hashval];
+      map[hashval] = NULL;
+      contents--;
     }
 
     void print() const
     {
+      for(int i = 0; i < mapsize; i++)
+      {
+        if(map[i] != NULL)
+	{
+          cout << "< ";
+	  cout << map[i]->getkey() << ", ";
+          cout << map[i]->getval();
+          cout << " >" << endl;
+	}
+      }
     }
 };
