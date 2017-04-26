@@ -67,6 +67,9 @@ class MyStringMap: public AbstractStringMap<T>
 	  map[i] = NULL;
 	}
       }
+      mapsize /= 2;
+      clear();
+      mapsize *= 2;
       delete[] map;
       map = newmap;
     }
@@ -74,7 +77,7 @@ class MyStringMap: public AbstractStringMap<T>
   public:
     MyStringMap()
     {
-      mapsize = 2;
+      mapsize = 5;
       contents = 0;
       map = new HashNode<T>*[mapsize];
       for(int i = 0; i < mapsize; i++)
