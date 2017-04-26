@@ -2,7 +2,6 @@
 //1510 with Dr. Taylor
 #include "abstractstringmap.h"
 
-
 template<typename T>
 class HashNode
 {
@@ -25,6 +24,11 @@ class HashNode
     {
       return value;
     }
+
+    void setval(T val)
+    {
+      value = val;
+    }
 };
 
 template<typename T>
@@ -38,23 +42,58 @@ class MyStringMap: public AbstractStringMap<T>
     int hash(const string &s) const
     {
       int total = 0;
-      for(int i = 0; i < s.length(); i++)
+      for(unsigned int i = 0; i < s.length(); i++)
       {
         total += s[i];
       }
       return (total % mapsize);
     }
 
+    void grow()
+    {
+      HashNode<T>** newmap;
+      mapsize *= 2;
+      newmap = new HashNode<T>*[mapsize];
+      for(int i = 0; i < mapsize; i++)
+      {
+        newmap[i] = NULL;
+      }
+      for(int i = 0; i < mapsize/2; i++)
+      {
+        if(map[i] != NULL)
+	{
+	  newmap[hash(map[i]->getkey())] = new HashNode<T>(map[i]->getkey(),map[i]->getval());
+	  delete map[i];
+	  map[i] = NULL;
+	}
+      }
+      delete[] map;
+      map = newmap;
+    }
+
   public:
     MyStringMap()
     {
-      mapsize = 65536;
+      mapsize = 2;
       contents = 0;
       map = new HashNode<T>*[mapsize];
       for(int i = 0; i < mapsize; i++)
       {
         map[i] = NULL;
       }
+    }
+
+    ~MyStringMap()
+    {
+      for(int i = 0; i < mapsize; i++)
+      {
+        if(map[i] != NULL)
+	{
+	  delete map[i];
+	  map[i] = NULL;
+	}
+      }
+      delete[] map;
     }
 
     int size() const
@@ -91,13 +130,21 @@ class MyStringMap: public AbstractStringMap<T>
     {
       for(int i = 0; i < mapsize; i++)
       {
-        map[i] = NULL;
+        if(map[i] != NULL)
+	{
+	  delete map[i];
+	  map[i] = NULL;
+        }
       }
       contents = 0;
     }
 
     void insert(const string& key, const T& val)
     {
+      if(contents > (mapsize * .5))
+      {
+        grow();
+      }
       int hashval = hash(key);
       while(map[hashval] != NULL && map[hashval]->getkey() != key)
       {
