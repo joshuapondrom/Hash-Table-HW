@@ -77,7 +77,7 @@ class MyStringMap: public AbstractStringMap<T>
   public:
     MyStringMap()
     {
-      mapsize = 5;
+      mapsize = 4096;
       contents = 0;
       map = new HashNode<T>*[mapsize];
       for(int i = 0; i < mapsize; i++)
